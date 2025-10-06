@@ -16,8 +16,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
+    "cov:local": "jest --coverage --testFailureExitCode=0",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --runInBand"
+    "test:e2e": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --runInBand",
+    "sonar:local": "cross-env SONAR_HOST_URL=http://localhost:9500 npx @sonar/scan"
   },
   "dependencies": {
     "@apollo/server": "^5.0.0",

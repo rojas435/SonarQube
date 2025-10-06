@@ -27,13 +27,9 @@ jobs:
         run: |
           npm ci || npm i --legacy-peer-deps
 
-      - name: Upload coverage artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: coverage
-          if-no-files-found: ignore
+      - name: Generate coverage (non-blocking)
+        run: npm run cov:local
+        continue-on-error: true
 
       - name: Trivy FS scan (source code)
         uses: aquasecurity/trivy-action@0.24.0
@@ -84,6 +80,14 @@ jobs:
         with:
           sarif_file: trivy-image.sarif
           category: trivy-image
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+          if-no-files-found: ignore
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
