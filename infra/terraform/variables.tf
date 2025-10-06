@@ -38,3 +38,15 @@ variable "tags" {
   default     = {}
   description = "Tags to apply to resources"
 }
+
+variable "enable_password_auth" {
+  type        = bool
+  default     = false
+  description = "Enable SSH password authentication (not recommended for production)."
+}
+
+variable "admin_password" {
+  type        = string
+  sensitive   = true
+  description = "Admin user's password when enable_password_auth=true. Keep it secret via TF_VAR_admin_password or GitHub Secret VM_ADMIN_PASSWORD."
+}

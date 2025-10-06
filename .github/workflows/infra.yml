@@ -37,14 +37,16 @@ jobs:
       - name: Terraform Plan
         working-directory: infra/terraform
         env:
-          TF_VAR_vm_ssh_public_key: ${{ secrets.VM_SSH_PUBLIC_KEY }}
+          TF_VAR_enable_password_auth: 'true'
+          TF_VAR_admin_password: ${{ secrets.VM_ADMIN_PASSWORD }}
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         working-directory: infra/terraform
         env:
-          TF_VAR_vm_ssh_public_key: ${{ secrets.VM_SSH_PUBLIC_KEY }}
+          TF_VAR_enable_password_auth: 'true'
+          TF_VAR_admin_password: ${{ secrets.VM_ADMIN_PASSWORD }}
         run: terraform apply -auto-approve tfplan
 
       - name: Output Sonar URL
