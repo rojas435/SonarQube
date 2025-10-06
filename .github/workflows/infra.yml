@@ -39,7 +39,7 @@ jobs:
         env:
           TF_VAR_enable_password_auth: 'true'
           TF_VAR_admin_password: ${{ secrets.VM_ADMIN_PASSWORD }}
-        run: terraform plan -out=tfplan
+        run: terraform plan -input=false -out=tfplan
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
@@ -47,7 +47,7 @@ jobs:
         env:
           TF_VAR_enable_password_auth: 'true'
           TF_VAR_admin_password: ${{ secrets.VM_ADMIN_PASSWORD }}
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -input=false -auto-approve tfplan
 
       - name: Output Sonar URL
         id: tf_output

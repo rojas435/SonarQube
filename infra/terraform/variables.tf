@@ -31,6 +31,7 @@ variable "allow_ips" {
 variable "vm_ssh_public_key" {
   type        = string
   description = "SSH public key for admin user"
+  default     = ""
 }
 
 variable "tags" {
