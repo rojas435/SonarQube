@@ -20,7 +20,7 @@
     "test:e2e": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --runInBand"
   },
   "dependencies": {
-    "@apollo/server": "^5.11.0",
+    "@apollo/server": "^5.0.0",
     "@google/genai": "^0.14.1",
     "@nestjs/apollo": "^13.1.0",
     "@nestjs/common": "^11.0.16",
@@ -35,7 +35,6 @@
     "@nestjs/typeorm": "^11.0.0",
     "@prisma/client": "^6.6.0",
     
-    "aroma-life": "file:",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",

@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'infra/terraform/**'
+      - '.github/workflows/infra.yml'
 
 permissions:
   id-token: write
@@ -42,7 +43,7 @@ jobs:
         run: terraform plan -input=false -out=tfplan
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
         working-directory: infra/terraform
         env:
           TF_VAR_enable_password_auth: 'true'
