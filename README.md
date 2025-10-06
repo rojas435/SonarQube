@@ -146,7 +146,7 @@ Dónde ver resultados:
 ## Capturas
 
 ### Coverage
-![Funcionamiento del analis del proyecto](images/image1.png)
+![Funcionamiento del analis del proyecto](Images/image1.png)
 
 
 
