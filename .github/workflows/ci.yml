@@ -67,7 +67,7 @@ jobs:
           category: trivy-iac
 
       - name: Build container image
-        run: docker build -f dockerfile -t app:ci .
+        run: docker build -f Dockerfile -t app:ci .
 
       - name: Trivy image scan
         uses: aquasecurity/trivy-action@0.24.0

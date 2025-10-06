@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+Dockerfile*
+dockerfile*
+.git
+.gitignore
+coverage
+dist
+.vscode
+*.swp
+*.swo
+*.tmp

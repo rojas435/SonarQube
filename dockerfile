@@ -1,41 +1,27 @@
-version: '2'
+# syntax=docker/dockerfile:1
 
-services:
-sonarqube:
-image: sonarqube
-ports:
-- "9000:9000"
-networks:
-- sonarnet
-environment:
-- SONARQUBE_JDBC_URL=jdbc:postgresql://db:5432/sonar
-- SONARQUBE_JDBC_USERNAME=sonar
-- SONARQUBE_JDBC_PASSWORD=sonar
-volumes:
-- sonarqube_conf:/opt/sonarqube/conf
-- sonarqube_data:/opt/sonarqube/data
-- sonarqube_extensions:/opt/sonarqube/extensions
-- sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
+FROM node:20-bookworm-slim AS base
+WORKDIR /app
 
-db:
-image: postgres
-networks:
-- sonarnet
-environment:
-- POSTGRES_USER=sonar
-- POSTGRES_PASSWORD=sonar
-volumes:
-- postgresql:/var/lib/postgresql
-- postgresql_data:/var/lib/postgresql/data
+FROM base AS deps
+COPY package*.json ./
+# Install dependencies including dev deps for build
+RUN npm ci
 
-networks:
-sonarnet:
-driver: bridge
+FROM deps AS build
+COPY . .
+RUN npm run build
 
-volumes:
-sonarqube_conf:
-sonarqube_data:
-sonarqube_extensions:
-sonarqube_bundled-plugins:
-postgresql:
-postgresql_data:
+FROM node:20-bookworm-slim AS runner
+ENV NODE_ENV=production
+WORKDIR /app
+COPY package*.json ./
+# Install only production deps
+RUN npm ci --omit=dev
+# Copy built artifacts
+COPY --from=build /app/dist ./dist
+# Copy any runtime files if needed (e.g., schema.graphql)
+COPY --from=build /app/schema.graphql ./schema.graphql
+
+EXPOSE 3000
+CMD ["node", "dist/main.js"]
