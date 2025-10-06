@@ -2,5 +2,5 @@ projectKey=Compunet3
 serverUrl=http://localhost:9500
 serverVersion=25.9.0.112764
 dashboardUrl=http://localhost:9500/dashboard?id=Compunet3
-ceTaskId=3cb150d9-1a98-4673-9ba8-1b3531c3628b
-ceTaskUrl=http://localhost:9500/api/ce/task?id=3cb150d9-1a98-4673-9ba8-1b3531c3628b
+ceTaskId=11ba1a75-fe19-4ddf-980e-2ad96087ae64
+ceTaskUrl=http://localhost:9500/api/ce/task?id=11ba1a75-fe19-4ddf-980e-2ad96087ae64
