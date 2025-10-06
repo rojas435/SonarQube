@@ -5,8 +5,8 @@ WORKDIR /app
 
 FROM base AS deps
 COPY package*.json ./
-# Install dependencies including dev deps for build
-RUN npm ci
+# Install dependencies including dev deps for build (allow legacy peer deps to avoid conflicts)
+RUN npm install --legacy-peer-deps
 
 FROM deps AS build
 COPY . .
@@ -17,7 +17,7 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY package*.json ./
 # Install only production deps
-RUN npm ci --omit=dev
+RUN npm install --omit=dev --legacy-peer-deps
 # Copy built artifacts
 COPY --from=build /app/dist ./dist
 # Copy any runtime files if needed (e.g., schema.graphql)
