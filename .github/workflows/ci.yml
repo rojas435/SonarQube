@@ -1,54 +1,104 @@
-name: CI - Test Only
+name: ci
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  security-events: write
 
 jobs:
-  run-tests:
+  test_and_scan:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:14
-        env:
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpassword
-          POSTGRES_DB: test_db
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U testuser -d test_db"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'yarn'
+          node-version: 20
+          cache: npm
 
-      - name: Install dependencies with Yarn
-        run: yarn install --frozen-lockfile
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Run unit tests
-        run: yarn test
+      - name: Run tests
+        run: npm run test:cov --if-present
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+      - name: Trivy FS scan (source code)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Trivy IaC scan (Terraform)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: 'config'
+          hide-progress: true
+          format: 'sarif'
+          output: 'trivy-iac.sarif'
+          severity: 'CRITICAL,HIGH'
+          scan-ref: 'infra/terraform'
+
+      - name: Upload Trivy IaC results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-iac.sarif
+
+      - name: Build container image
+        run: docker build -f dockerfile -t app:ci .
+
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: 'image'
+          image-ref: 'app:ci'
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-image.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy image results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-image.sarif
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
         env:
-          NODE_ENV: test
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >-
+            -Dsonar.projectKey=Compunet3
+            -Dsonar.projectName=Compunet3
+            -Dsonar.sources=src
+            -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/*.test.ts
+            -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
 
-      - name: Run end-to-end tests
-        run: yarn test:e2e
+      - name: SonarQube Quality Gate
+        uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
+        timeout-minutes: 5
         env:
-          NODE_ENV: test
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USERNAME: testuser
-          DB_PASSWORD: testpassword
-          DB_NAME: test_db
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
