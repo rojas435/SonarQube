@@ -48,6 +48,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-results.sarif
+          category: trivy-fs
 
       - name: Trivy IaC scan (Terraform)
         uses: aquasecurity/trivy-action@0.24.0
@@ -63,6 +64,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-iac.sarif
+          category: trivy-iac
 
       - name: Build container image
         run: docker build -f dockerfile -t app:ci .
@@ -81,6 +83,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-image.sarif
+          category: trivy-image
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
