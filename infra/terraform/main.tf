@@ -95,7 +95,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   ]
 
   dynamic "admin_ssh_key" {
-    for_each = var.vm_ssh_public_key != null && length(trim(var.vm_ssh_public_key)) > 0 ? [1] : []
+    for_each = var.vm_ssh_public_key != null && length(trimspace(var.vm_ssh_public_key)) > 0 ? [1] : []
     content {
       username   = var.admin_username
       public_key = var.vm_ssh_public_key
@@ -126,11 +126,11 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   lifecycle {
     precondition {
-      condition     = var.enable_password_auth || (var.vm_ssh_public_key != null && length(trim(var.vm_ssh_public_key)) > 0)
+      condition     = var.enable_password_auth || (var.vm_ssh_public_key != null && length(trimspace(var.vm_ssh_public_key)) > 0)
       error_message = "Provide VM_SSH_PUBLIC_KEY (SSH public key) or set enable_password_auth=true with admin_password to allow SSH access."
     }
     precondition {
-      condition     = var.enable_password_auth ? (var.admin_password != null && length(trim(var.admin_password)) > 0) : true
+      condition     = var.enable_password_auth ? (var.admin_password != null && length(trimspace(var.admin_password)) > 0) : true
       error_message = "When enable_password_auth=true you must set a non-empty admin_password."
     }
   }
