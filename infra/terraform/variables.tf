@@ -6,7 +6,7 @@ variable "project_name" {
 
 variable "location" {
   type        = string
-  default     = "eastus"
+  default     = "chilecentral"
   description = "Azure region"
 }
 
